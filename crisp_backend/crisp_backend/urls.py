@@ -21,4 +21,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('api/web/', include('web_backend.urls')),
     # path('api/mobile/', include('mobile_backend.urls')),
+    path('user/', include('users.urls')),
+    path('workers/', include('users.urls')),
+    
+    
+
 ]
