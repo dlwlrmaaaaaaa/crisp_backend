@@ -25,7 +25,6 @@ SECRET_KEY = 'django-insecure-m&eu7qke4n&ob@tx(qc**hh+llk!#ak(11jt(io(3++klg(vn3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -39,10 +38,30 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'reports',
-    'rest_framework'
+    'rest_framework',
+    'corsheaders'
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1), 
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -81,7 +100,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'crisp_backend',
         'USER': 'postgres',
-        'PASSWORD': 'mikha',
+        'PASSWORD': '0713',
         'HOST': 'localhost',
         'PORT': '5432'
     }
@@ -128,3 +147,13 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOWED_ORIGINS = [
+     "http://localhost:3000",  # or whatever your frontend URL is
+    "http://10.0.2.2:8000",   # For Android emulator
+    "http://localhost:19006",  # Adjust according to your React Native app's URL
+    "http://192.168.1.191:8000",  # Your Django URL
+    "http://localhost:8000", 
+    "http://localhost:8081", 
+]
+ALLOWED_HOSTS = ['192.168.1.191', 'localhost']

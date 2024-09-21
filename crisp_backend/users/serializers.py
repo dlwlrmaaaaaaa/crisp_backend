@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Citizen, Workers
+from .models import Citizen, Workers, DepartmentAdmin
 
 class CitizenSerializer(serializers.ModelSerializer):
     user = serializers.CharField(write_only=True)  # Accept user identifier
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})  # Hide password input
+    
 
     class Meta:
         model = Citizen
@@ -61,11 +62,4 @@ class WorkersSerializer(serializers.ModelSerializer):
         return worker
     
 
-    
-
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
-
-
-
+# class DepartmentAdmin(serializers.ModelSerializer):

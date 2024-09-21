@@ -1,25 +1,28 @@
 from django.shortcuts import render
 from rest_framework import generics, status
-from .serializers import CitizenSerializer, LoginSerializer, WorkersSerializer
+from .serializers import CitizenSerializer, WorkersSerializer
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
+
 
 class CitizenRegisterView(generics.CreateAPIView):
     serializer_class = CitizenSerializer
+    permission_classes = [AllowAny]
 
 class WorkersRegisterView(generics.CreateAPIView):
     serializer_class = WorkersSerializer
+    permission_classes = [AllowAny]
 
-class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer
+class ProtectedView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data['username']
-        password = serializer.validated_data['password']
+    def get(self, request):
+        return Response({'message': 'This is a protected view.'})
 
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            return Response({'message': 'Login successful!'}, status=status.HTTP_200_OK)
-        return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+class HealthView(generics.RetrieveAPIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        return Response({'message': 'This is a for health check.'})
+
+    
