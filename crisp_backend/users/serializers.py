@@ -2,6 +2,9 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Citizen, Workers, DepartmentAdmin
 
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from users.utils import get_account_type
+
 class CitizenSerializer(serializers.ModelSerializer):
     user = serializers.CharField(write_only=True)  # Accept user identifier
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})  # Hide password input
@@ -89,6 +92,20 @@ class DepartmentHeadSerializer(serializers.ModelSerializer):
 
         departmentadmin = DepartmentAdmin.objects.create(user=user, **validated_data)
         return departmentadmin
+    
+# ito bago 
+    
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        # Get the user account type
+        account_type = get_account_type(self.user)
+
+        # Add the account type to the token response
+        data['account_type'] = account_type
+
+        return data
     
 
     

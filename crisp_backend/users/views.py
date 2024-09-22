@@ -4,6 +4,9 @@ from .serializers import CitizenSerializer, WorkersSerializer, DepartmentHeadSer
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from .utils import get_account_type
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
 
 
 class CitizenRegisterView(generics.CreateAPIView):
@@ -28,5 +31,12 @@ class HealthView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
     def get(self, request):
         return Response({'message': 'This is a for health check.'})
+
+# ito bago
+#   
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+
 
     
