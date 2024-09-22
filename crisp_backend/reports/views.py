@@ -5,11 +5,11 @@ from users.models import Report
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from crisp_backend.firebase import *
-from firebase_admin import firestore
-from firebase_admin import db
+# from firebase_admin import firestore
+# from firebase_admin import db
 from datetime import datetime
 
-db = firestore.client()
+# db = firestore.client()
 
 class ReportView(generics.GenericAPIView):
     serializer_class = ReportSerializer

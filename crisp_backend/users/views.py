@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics, status
-from .serializers import CitizenSerializer, WorkersSerializer
+from .serializers import CitizenSerializer, WorkersSerializer, DepartmentHeadSerializer
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -12,6 +12,10 @@ class CitizenRegisterView(generics.CreateAPIView):
 
 class WorkersRegisterView(generics.CreateAPIView):
     serializer_class = WorkersSerializer
+    permission_classes = [AllowAny]
+
+class DepartmentHeadRegisterView(generics.CreateAPIView):
+    serializer_class = DepartmentHeadSerializer
     permission_classes = [AllowAny]
 
 class ProtectedView(generics.RetrieveAPIView):

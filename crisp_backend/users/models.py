@@ -17,7 +17,8 @@ class DepartmentAdmin(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='department_admin_profile')
     contact_number = models.CharField(max_length=20, unique=True)
     department = models.CharField(max_length=100)
-    address = models.TextField(),
+    address = models.TextField(null=True, blank=True)  # Allow null values
+
 
     def __str__(self):
         return self.user.email

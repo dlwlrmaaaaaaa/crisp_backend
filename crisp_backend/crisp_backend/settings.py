@@ -100,7 +100,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'crisp_backend',
         'USER': 'postgres',
-        'PASSWORD': '0713',
+        'PASSWORD': 'mikha',
         'HOST': 'localhost',
         'PORT': '5432'
     }
@@ -156,4 +156,4 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000", 
     "http://localhost:8081", 
 ]
-ALLOWED_HOSTS = ['192.168.1.191', 'localhost']
+ALLOWED_HOSTS = ['192.168.1.191', '127.0.0.1', 'localhost']
