@@ -1,8 +1,8 @@
 import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, storage
 
-cred = credentials.Certificate('C:/Users/codin/OneDrive/crisp-63736-firebase-adminsdk-r1i8j-a043e2e3ad.json')
-
+# Initialize Firebase
+cred = credentials.Certificate('C:/Users/ADMIN/Documents/crisp-5d09f-firebase-adminsdk-vl4cg-30e5cb1ca3.json')
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://crisp-63736-default-rtdb.asia-southeast1.fSirebasedatabase.app/'
+    'storageBucket': 'crisp-5d09f.appspot.com'  # Replace with your actual bucket name
 })
