@@ -1,3 +1,4 @@
+
 from users.models import Citizen, Workers, DepartmentAdmin
 
 def get_account_type(user):
@@ -7,4 +8,6 @@ def get_account_type(user):
         return 'Worker'
     elif DepartmentAdmin.objects.filter(user=user).exists():
         return 'DepartmentAdmin'
+    elif user.is_staff:
+        return 'SuperAdmin'
     return 'Unknown'
