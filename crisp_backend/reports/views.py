@@ -1,60 +1,86 @@
 import os
 from datetime import datetime
-import firebase_admin
+from django.contrib.auth.models import User
 from firebase_admin import credentials, storage, firestore
 from rest_framework.exceptions import NotFound
 from rest_framework import generics, status
 from rest_framework.response import Response
-from users.models import Report, User  # Import your Report model and User model
+from users.models import Report, Citizen  # Import your Report model and User model
 from .serializers import ReportSerializer  # Import your serializer
-
-cred = credentials.Certificate('C:/Users/ADMIN/Documents/crisp-5d09f-firebase-adminsdk-vl4cg-30e5cb1ca3.json')
-firebase_admin.initialize_app(cred, {
-    'storageBucket': 'crisp-5d09f.appspot.com'
-})
-
-db = firestore.client()
+from crisp_backend.firebase import db, bucket
+from rest_framework.permissions import AllowAny
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import uuid
 
 class ReportView(generics.GenericAPIView):
     serializer_class = ReportSerializer
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        try:
+            if serializer.is_valid():
+                # Fetching the user (citizen) by user_id
+                citizen = Citizen.objects.get(id=request.data['user_id'])
+                image_path_string = ''
+                # Preparing report data
+                report_data = {
+                    'user_id': citizen.id,                   
+                    'type_of_report': request.data['type_of_report'],
+                    'report_description': request.data['report_description'],
+                    'longitude': request.data['longitude'],
+                    'latitude': request.data['latitude'],
+                    'upvote': 0,
+                    'status': "Pending",
+                    'report_date': datetime.now().isoformat()
+                }
 
-        if serializer.is_valid():
-            # Retrieve citizen instance based on user_id
-            citizen = User.objects.get(id=request.data['user_id'])
+                # Check if an image was uploaded
+                if 'image' in request.FILES:
+                    image_file = request.FILES['image']
+                    image_name = str(uuid.uuid4())  # Generate unique image name
 
-            report_data = {
-                'user_id': citizen.id,
-                'image_path': request.data['image_path'],  # Initially set for local upload
-                'type_of_report': request.data['type_of_report'],
-                'report_description': request.data['report_description'],
-                'longitude': request.data['longitude'],
-                'latitude': request.data['latitude'],
-                'upvote': 0,
-                'status': "Pending",
-                'report_date': datetime.now().isoformat()
-            }
+                    # Save the image to a temporary path
+                    temp_image_path = default_storage.save(f'temporary_path/{image_name}', ContentFile(image_file.read()))
 
-            # Upload the image to Firebase Storage
-            image_name = os.path.basename(report_data['image_path'])
-            bucket = storage.bucket()
-            blob = bucket.blob(f'images/{image_name}')
-            blob.upload_from_filename(report_data['image_path'])  # Upload the local file
-            report_data['image_path'] = blob.public_url  # Get the public URL
+                    # Get a reference to the Firebase storage bucket
+                    bucket = storage.bucket()
 
-            # Save report to Firestore
-            db.collection('reports').add(report_data)
+                    # Create a blob and upload the file to Firebase
+                    image_blob = bucket.blob(f'images_report/{image_name}')
+                    image_blob.upload_from_filename(temp_image_path, content_type=image_file.content_type)
 
-            # Save report to PostgreSQL
-            report = Report(**report_data)
-            report.save()
+                    # Make the image publicly accessible
+                    image_blob.make_public()
 
-            return Response({"message": "Report saved"}, status=status.HTTP_201_CREATED)
+                    # Add the image URL to report data
+                    image_path_string = image_blob.public_url
 
-        return Response({"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+                # Add the report to Firestore
+                __added = db.collection('reports').add(report_data)
+                report = Report(
+                    user_id=citizen,
+                    image_path=image_path_string,
+                    type_of_report=request.data['type_of_report'],
+                    report_description=request.data['report_description'],
+                    longitude=request.data['longitude'],
+                    latitude=request.data['latitude'],
+                    upvote=0,
+                    status="Pending",
+                    report_date=datetime.now()
+                     )
+                report.save()
+                # Respond with success message
+                return Response({"message": "Report saved"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"errr": serializer.errors}, status=status.HTTP_201_CREATED)
+
+        except User.DoesNotExist:
+            raise NotFound(detail="User not found.")
     
+    
+
     def put(self, request, *args, **kwargs):
         report = self.get_queryset().get(pk=kwargs['pk'])
         serializer = self.get_serializer(report, data=request.data)
