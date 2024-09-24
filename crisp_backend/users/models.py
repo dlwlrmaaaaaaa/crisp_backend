@@ -1,9 +1,9 @@
+
 from django.db import models
 import uuid
 from django.core.validators import RegexValidator
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
-
 # Define Citizen model
 class Citizen(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='citizen_profile')
@@ -11,7 +11,7 @@ class Citizen(models.Model):
     contact_number = models.CharField(max_length=16, unique=True)
 
     def __str__(self):
-        return self.user
+        return self.user.username
 
 class DepartmentAdmin(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='department_admin_profile')
@@ -39,7 +39,7 @@ class Workers(models.Model):
 class Report(models.Model):
     report_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user_id = models.ForeignKey(Citizen, on_delete=models.CASCADE)  # Use Citizen model as an example
-    image_path = models.CharField(max_length=100)
+    image_path = models.CharField(max_length=255)
     type_of_report = models.CharField(max_length=100)
     report_description = models.CharField(max_length=255)
     latitude = models.FloatField(null=True)
